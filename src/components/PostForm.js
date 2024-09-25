@@ -1,40 +1,89 @@
 import React, { useState } from 'react';
-import { db, storage } from '../firebase/firebaseConfig';
+import { Form, Button, Input, TextArea, Radio } from 'semantic-ui-react';
 
 function PostForm() {
-  const [title, setTitle] = useState('');
-  const [content, setContent] = useState('');
-  const [image, setImage] = useState(null);
+    const [postType, setPostType] = useState('article'); // Default to article
+    const [title, setTitle] = useState('');
+    const [abstract, setAbstract] = useState('');
+    const [articleText, setArticleText] = useState('');
+    const [tags, setTags] = useState('');
 
-  const handleImageChange = e => {
-    if (e.target.files[0]) {
-      setImage(e.target.files[0]);
-    }
-  };
+    const handleSubmit = (event) => {
+        event.preventDefault();
+        // Implement what happens when the form is submitted, e.g., save to Firebase
+        console.log({ postType, title, abstract, articleText, tags });
+    };
 
-  const savePost = async () => {
-    if (image) {
-      const storageRef = storage.ref(`images/${image.name}`);
-      const snapshot = await storageRef.put(image);
-      const imageUrl = await snapshot.ref.getDownloadURL();
+    const handleImageUpload = (event) => {
+        // Handle image file upload logic here
+        console.log(event.target.files[0]);
+    };
 
-      await db.collection("posts").add({
-        title,
-        content,
-        imageUrl,
-        createdAt: firebase.firestore.FieldValue.serverTimestamp()
-      });
-    }
-  };
-
-  return (
-    <div>
-      <input type="text" value={title} onChange={e => setTitle(e.target.value)} placeholder="Title" />
-      <textarea value={content} onChange={e => setContent(e.target.value)} placeholder="Content" />
-      <input type="file" onChange={handleImageChange} />
-      <button onClick={savePost}>Save Post</button>
-    </div>
-  );
+    return (
+        <Form onSubmit={handleSubmit}>
+            <Form.Field>
+                Select Post Type: <b>{postType}</b>
+            </Form.Field>
+            <Form.Field>
+                <Radio
+                    label='Question'
+                    name='postType'
+                    value='question'
+                    checked={postType === 'question'}
+                    onChange={() => setPostType('question')}
+                />
+                <Radio
+                    label='Article'
+                    name='postType'
+                    value='article'
+                    checked={postType === 'article'}
+                    onChange={() => setPostType('article')}
+                />
+            </Form.Field>
+            <Form.Field>
+                <label>Title</label>
+                <Input placeholder='Enter a descriptive title' value={title} onChange={e => setTitle(e.target.value)} />
+            </Form.Field>
+            <Form.Field>
+                <label>Add an image:</label>
+                <Button
+                    as="label"
+                    htmlFor="file"
+                    type="button"
+                    animated="fade"
+                >
+                    <Button.Content visible>
+                        <span>Browse</span>
+                    </Button.Content>
+                    <Button.Content hidden>File</Button.Content>
+                </Button>
+                <input
+                    type="file"
+                    id="file"
+                    hidden
+                    onChange={handleImageUpload}
+                />
+                <Form.Button onClick={() => { /* logic to handle upload */ }}>
+                    Upload
+                </Form.Button>
+            </Form.Field>
+            <Form.Field>
+                <label>Abstract</label>
+                <TextArea placeholder='Enter a 1-paragraph abstract' value={abstract} onChange={e => setAbstract(e.target.value)} />
+            </Form.Field>
+            {postType === 'article' && (
+                <Form.Field>
+                    <label>Article Text</label>
+                    <TextArea placeholder='Enter the article text' value={articleText} onChange={e => setArticleText(e.target.value)} />
+                </Form.Field>
+            )}
+            <Form.Field>
+                <label>Tags</label>
+                <Input placeholder='Please add up to 3 tags' value={tags} onChange={e => setTags(e.target.value)} />
+            </Form.Field>
+            <Button type='submit'>Post</Button>
+        </Form>
+    );
 }
 
 export default PostForm;

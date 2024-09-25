@@ -1,16 +1,14 @@
 import React from 'react';
-import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
-import QuestionsPage from './pages/QuestionsPage';
+import { Container } from 'semantic-ui-react';
 import PostForm from './components/PostForm';
+import 'semantic-ui-css/semantic.min.css';
+
 
 function App() {
   return (
-    <Router>
-      <Switch>
-        <Route path="/post" component={PostForm} />
-        <Route path="/questions" component={QuestionsPage} />
-      </Switch>
-    </Router>
+    <Container>
+      <PostForm />
+    </Container>
   );
 }
 
